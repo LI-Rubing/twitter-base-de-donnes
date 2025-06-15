@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Twitter → Neo4j 数据导入工具</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function startTask() {
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("logs").innerText = "";
+
+            const formData = new FormData(document.getElementById("taskForm"));
+
+            fetch("/run", {
+                method: "POST",
+                body: formData
+            }).then(() => {
+                const eventSource = new EventSource("/stream");
+                eventSource.onmessage = function(event) {
+                    if (event.data.trim().length > 0) {
+                        const logs = document.getElementById("logs");
+                        logs.innerText += event.data + "\n";
+                        logs.scrollTop = logs.scrollHeight;
+                    }
+                };
+                eventSource.onerror = function() {
+                    eventSource.close();
+                };
+            });
+            return false;  // 阻止默认提交刷新页面
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Twitter 数据图谱生成器</h1>
+        <form id="taskForm" onsubmit="return startTask()">
+            <label for="tag">关键词（tag）:</label>
+            <input type="text" id="tag" name="tag" required>
+
+            <label for="start_date">起始日期:</label>
+            <input type="date" id="start_date" name="start_date" required>
+
+            <label for="end_date">终止日期:</label>
+            <input type="date" id="end_date" name="end_date" required>
+
+            <label for="sudo_password">管理员密码 (用于导入 CSV 到 Neo4j):</label>
+            <input type="password" id="sudo_password" name="sudo_password" required>
+
+            <button type="submit">生成图谱</button>
+        </form>
+
+        <p id="loading" style="display: none; color: blue; font-weight: bold;">
+            正在执行任务，请稍候...
+        </p>
+
+        <pre id="logs" style="white-space: pre-wrap; background: #eee; padding: 10px; height: 300px; overflow-y: scroll; border: 1px solid #ccc;"></pre>
+    </div>
+</body>
+</html>

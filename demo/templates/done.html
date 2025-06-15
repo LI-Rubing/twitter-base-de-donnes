@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>完成导入</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>✅ 数据处理完成！</h2>
+        <p>您可以现在打开 Neo4j 浏览器查看图谱：</p>
+        <a href="{{ neo4j_url }}" target="_blank" class="button">打开 Neo4j 浏览器</a>
+    </div>
+</body>
+</html>
